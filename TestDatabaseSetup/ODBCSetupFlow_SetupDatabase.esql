@@ -1,0 +1,46 @@
+
+
+CREATE COMPUTE MODULE ODBCSetupFlow_SetupDatabase
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		/*
+		* This code shows various possible ways to run database setup, including
+		* ignoring errors for speculative deletes, hardcoded DDL strings, and 
+		* using strings passed in from the test itself.
+		*/
+		CALL IgnoreErrorsPASSTHRU('DROP TABLE TEST_Tea');
+		COMMIT;
+		
+		PASSTHRU('CREATE TABLE TEST_Tea(id INTEGER, name VARCHAR(128))');
+
+		/*
+		* The test should set up the strings under TestDatabaseSetup.Inserts 
+		* with code along these lines:
+		*
+		*	inputMessageAssembly.localEnvironmentPath("TestDatabaseSetup.Inserts.one")
+	    *            .setValue("INSERT INTO TEST_Tea(id, name) VALUES(1, 'Darjeeling')");
+		*/
+        DECLARE InsertRef REFERENCE TO InputLocalEnvironment.TestDatabaseSetup.Inserts;
+        MOVE InsertRef FIRSTCHILD;
+        WHILE LASTMOVE(InsertRef)=TRUE
+        DO
+        	DECLARE insertText CHARACTER InsertRef;
+        	PASSTHRU(insertText);
+            MOVE InsertRef NEXTSIBLING;
+        END WHILE;
+        -- Ensure we don't hit any transactional issues
+		COMMIT;
+		RETURN TRUE;
+	END;
+
+	CREATE FUNCTION IgnoreErrorsPASSTHRU(IN text CHARACTER)
+	BEGIN
+		-- Need to catch cleanup errors
+		DECLARE EXIT HANDLER FOR SQLSTATE LIKE '%'
+      	BEGIN
+       		-- Do nothing
+       	END;
+		PASSTHRU('DROP TABLE TEST_Tea');
+	END;
+
+END MODULE;

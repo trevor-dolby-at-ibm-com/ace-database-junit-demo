@@ -9,3 +9,13 @@
 
 # Undo-tree save-files
 *.~undo-tree
+
+DatabaseTestServer/config/registry/integration_server/CurrentVersion/DSN*
+DatabaseTestServer/config/common/log/*
+DatabaseTestServer/config/common/error/*
+DatabaseTestServer/config/.id
+DatabaseTestServer/config/.lock
+DatabaseTestServer/log/*
+DatabaseTestServer/run/*
+
+*.class

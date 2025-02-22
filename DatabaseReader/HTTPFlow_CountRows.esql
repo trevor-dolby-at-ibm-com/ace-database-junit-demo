@@ -1,0 +1,12 @@
+-- Allow overrides for testing; these would normally include a separate schema name
+DECLARE databaseReaderTableName EXTERNAL CHARACTER 'Tea';
+
+
+CREATE COMPUTE MODULE HTTPFlow_CountRows
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot.Properties = InputProperties;
+		SET OutputRoot.JSON.Data.rowCount = THE(SELECT COUNT(T.ID) FROM Database.{databaseReaderTableName} AS T);
+		RETURN TRUE;
+	END;
+END MODULE;
