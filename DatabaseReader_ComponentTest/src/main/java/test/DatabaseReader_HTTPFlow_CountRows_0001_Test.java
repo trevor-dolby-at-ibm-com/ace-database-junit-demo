@@ -33,8 +33,14 @@ public class DatabaseReader_HTTPFlow_CountRows_0001_Test {
 	public static void databaseSetup() throws Exception 
 	{
 		// Define the SpyObjectReference
+
+		// Some early fixpacks of ACE v12 had issues doing ODBC work on a test thread, so we need
+		// to work around this by using a callable flow to transfer the work to a message flow thread.
+		//
+		// SpyObjectReference nodeReference = new SpyObjectReference().application("TestDatabaseSetup")
+		//	 	.messageFlow("ODBCSetupFlow").node("SetupDatabase");
 		SpyObjectReference nodeReference = new SpyObjectReference().application("TestDatabaseSetup")
-				.messageFlow("ODBCSetupFlow").node("SetupDatabase");
+				.messageFlow("WorkaroundFlow").node("Callable Flow Invoke");
 
 		// Initialise a NodeSpy
 		NodeSpy nodeSpy = new NodeSpy(nodeReference);
